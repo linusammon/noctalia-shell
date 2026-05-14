@@ -67,6 +67,18 @@ in
       default = { };
       description = "Desktop widgets configuration";
     };
+
+    userTemplates = lib.mkOption {
+      type =
+        with lib.types;
+        oneOf [
+          tomlFormat.type
+          str
+          path
+        ];
+      default = { };
+      description = "User tempates configuration";
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -78,6 +90,9 @@ in
         After = [ config.wayland.systemd.target ];
         X-Restart-Triggers =
           lib.optional (cfg.config != { }) "${config.xdg.configFile."noctalia/config.toml".source}"
+          ++ lib.optional (
+            cfg.userTemplates != { }
+          ) "${config.xdg.configFile."noctalia/user_templates.toml".source}"
           ++ lib.optional (
             cfg.desktopWidgets != { }
           ) "${config.xdg.stateFile."noctalia/desktop_widgets.toml".source}"
@@ -100,6 +115,9 @@ in
       configFile = lib.mkMerge [
         (lib.mkIf (cfg.config != { }) {
           "noctalia/config.toml".source = generateToml "config.toml" cfg.config;
+        })
+        (lib.mkIf (cfg.config != { }) {
+          "noctalia/user_templates.toml".source = generateToml "config.toml" cfg.userTemplates;
         })
         (lib.mapAttrs' (
           name: palette:
