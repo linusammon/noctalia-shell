@@ -23,16 +23,16 @@ let
 in
 {
   options.programs.noctalia = {
-    enable = lib.mkEnableOption "Noctalia configuration";
+    enable = lib.mkEnableOption "Whether to enable noctalia, a lightweight Wayland shell and bar.";
 
-    systemd.enable = lib.mkEnableOption "Noctalia systemd user service";
+    systemd.enable = lib.mkEnableOption "Enables a systemd user service for noctalia.";
 
     package = lib.mkOption {
       type = lib.types.nullOr lib.types.package;
-      description = "Noctalia package to use";
+      description = "The noctalia package to use.";
     };
 
-    config = lib.mkOption {
+    settings = lib.mkOption {
       type =
         with lib.types;
         oneOf [
@@ -41,7 +41,14 @@ in
           path
         ];
       default = { };
-      description = "Noctalia configuration";
+      description = ''
+        Default settings for noctalia, written in nix. See nixpkgs' toml format for information on how it's configured.
+
+        See <https://docs.noctalia.dev/v5> for more information and examples.
+
+        Note: these settings can still be overwritten at runtime via the settings menu.
+      '';
+      example = lib.literalExpression builtins.readFile ../example.toml;
     };
 
     customPalettes = lib.mkOption {
@@ -53,7 +60,11 @@ in
           path
         ];
       default = { };
-      description = "Custom color palettes";
+      description = ''
+        Custom color pallete options.
+
+        See <https://docs.noctalia.dev/v5/theming/#custom_palette>.
+      '';
     };
 
     desktopWidgets = lib.mkOption {
@@ -65,7 +76,11 @@ in
           path
         ];
       default = { };
-      description = "Desktop widgets configuration";
+      description = ''
+        Configuration for desktop widgets.
+
+        See <https://docs.noctalia.dev/v5/desktop/widgets/#desktop-widgets>.
+      '';
     };
 
     userTemplates = lib.mkOption {
@@ -77,7 +92,11 @@ in
           path
         ];
       default = { };
-      description = "User tempates configuration";
+      description = ''
+        Configuration for custom user theming templates.
+
+        See <https://docs.noctalia.dev/v5/theming/templates>.
+      '';
     };
   };
 
@@ -89,7 +108,7 @@ in
         PartOf = [ config.wayland.systemd.target ];
         After = [ config.wayland.systemd.target ];
         X-Restart-Triggers =
-          lib.optional (cfg.config != { }) "${config.xdg.configFile."noctalia/config.toml".source}"
+          lib.optional (cfg.settings != { }) "${config.xdg.configFile."noctalia/config.toml".source}"
           ++ lib.optional (
             cfg.userTemplates != { }
           ) "${config.xdg.configFile."noctalia/user_templates.toml".source}"
@@ -113,10 +132,10 @@ in
 
     xdg = {
       configFile = lib.mkMerge [
-        (lib.mkIf (cfg.config != { }) {
-          "noctalia/config.toml".source = generateToml "config.toml" cfg.config;
+        (lib.mkIf (cfg.settings != { }) {
+          "noctalia/config.toml".source = generateToml "config.toml" cfg.settings;
         })
-        (lib.mkIf (cfg.config != { }) {
+        (lib.mkIf (cfg.settings != { }) {
           "noctalia/user_templates.toml".source = generateToml "config.toml" cfg.userTemplates;
         })
         (lib.mapAttrs' (
