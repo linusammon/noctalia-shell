@@ -66,22 +66,6 @@ in
         See <https://docs.noctalia.dev/v5/theming/#custom_palette>.
       '';
     };
-
-    desktopWidgets = lib.mkOption {
-      type =
-        with lib.types;
-        oneOf [
-          tomlFormat.type
-          str
-          path
-        ];
-      default = { };
-      description = ''
-        Configuration for desktop widgets.
-
-        See <https://docs.noctalia.dev/v5/desktop/widgets/#desktop-widgets>.
-      '';
-    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -93,9 +77,6 @@ in
         After = [ config.wayland.systemd.target ];
         X-Restart-Triggers =
           lib.optional (cfg.settings != { }) "${config.xdg.configFile."noctalia/config.toml".source}"
-          ++ lib.optional (
-            cfg.desktopWidgets != { }
-          ) "${config.xdg.stateFile."noctalia/desktop_widgets.toml".source}"
           ++ lib.mapAttrsToList (
             name: _: "${config.xdg.configFile."noctalia/palettes/${name}.json".source}"
           ) cfg.customPalettes;
@@ -123,10 +104,6 @@ in
           }
         ) cfg.customPalettes)
       ];
-
-      stateFile = lib.mkIf (cfg.desktopWidgets != { }) {
-        "noctalia/desktop_widgets.toml".source = generateToml "desktop_widgets.toml" cfg.desktopWidgets;
-      };
     };
 
     assertions = [
