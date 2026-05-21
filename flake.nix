@@ -3,10 +3,17 @@
 
   inputs = {
     nixpkgs.url = "https://channels.nixos.org/nixos-unstable/nixexprs.tar.xz";
+
+    wrappers.url = "github:BirdeeHub/nix-wrapper-modules";
+    wrappers.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
-    { self, nixpkgs }:
+    {
+      self,
+      nixpkgs,
+      wrappers,
+    }:
     let
       inherit (nixpkgs) lib;
 
@@ -73,5 +80,15 @@
           imports = [ ./nix/home-module.nix ];
           programs.noctalia.package = lib.mkDefault self.packages.${pkgs.stdenv.hostPlatform.system}.default;
         };
+
+      wrappers = forEachSystem (
+        { pkgs, system }:
+        {
+          default = (wrappers.lib.evalModule ./nix/wrapper-module.nix).config.wrap {
+            inherit pkgs;
+            package = self.packages.${system}.default;
+          };
+        }
+      );
     };
 }
