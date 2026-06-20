@@ -1389,6 +1389,10 @@
           "description": "Widgets in the center of the bar",
           "label": "Center Widgets"
         },
+        "click-through": {
+          "description": "Let pointer events pass through empty bar areas to windows below",
+          "label": "Click-Through"
+        },
         "contact-shadow": {
           "description": "Dark gradient between an attached panel and the bar to suggest depth at the seam"
         },

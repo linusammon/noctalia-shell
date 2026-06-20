@@ -1907,6 +1907,7 @@ namespace noctalia::config::schema {
         field(&BarConfig::widgetCapsuleOpacity, "capsule_opacity", kBarOpacityRange),
         capsuleBorderField(&BarConfig::widgetCapsuleBorder, &BarConfig::widgetCapsuleBorderSpecified, "capsule_border"),
         subTable(&BarConfig::deadZone, "dead_zone", barDeadZoneSchema()),
+        field(&BarConfig::clickThrough, "click_through"),
     };
     return s;
   }

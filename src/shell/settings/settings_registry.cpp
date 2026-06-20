@@ -2233,6 +2233,11 @@ namespace settings {
           "exclusive zone"
       ));
       entries.push_back(makeEntry(
+          section, "general", tr("settings.schema.bar.click-through.label"),
+          tr("settings.schema.bar.click-through.description"), path("click_through"), ToggleSetting{bar.clickThrough},
+          "click through pointer events pass-through transparent"
+      ));
+      entries.push_back(makeEntry(
           section, "general", tr("settings.schema.bar.layer.label"), tr("settings.schema.bar.layer.description"),
           path("layer"),
           asSegmented(plainSelect(

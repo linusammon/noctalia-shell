@@ -167,6 +167,7 @@ struct BarConfig {
   bool widgetCapsuleBorderSpecified = false;
   std::optional<ColorSpec> widgetCapsuleBorder;
   BarDeadZoneConfig deadZone;
+  bool clickThrough = false; // pointer events pass through bar gaps to windows below
   std::vector<BarMonitorOverride> monitorOverrides;
 
   bool operator==(const BarConfig&) const = default;

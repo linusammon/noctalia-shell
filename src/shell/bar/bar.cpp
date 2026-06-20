@@ -636,6 +636,45 @@ namespace {
     };
   }
 
+  [[nodiscard]] std::vector<InputRect>
+  barWidgetInputRegions(const BarInstance& instance) {
+    std::vector<InputRect> rects;
+    auto collectSection = [&rects](const std::vector<std::unique_ptr<Widget>>& widgets) {
+      for (const auto& widget : widgets) {
+        if (widget == nullptr) continue;
+        auto* root = widget->root();
+        if (root == nullptr || !root->visible()) continue;
+        float absX = 0.0f, absY = 0.0f;
+        Node::absolutePosition(root, absX, absY);
+        const float rw = root->width();
+        const float rh = root->height();
+        if (rw > 0.0f && rh > 0.0f) {
+          rects.push_back(InputRect{
+              static_cast<int>(std::floor(absX)),
+              static_cast<int>(std::floor(absY)),
+              static_cast<int>(std::ceil(absX + rw)) - static_cast<int>(std::floor(absX)),
+              static_cast<int>(std::ceil(absY + rh)) - static_cast<int>(std::floor(absY)),
+          });
+        }
+      }
+    };
+    collectSection(instance.startWidgets);
+    collectSection(instance.centerWidgets);
+    collectSection(instance.endWidgets);
+    return rects;
+  }
+
+  [[nodiscard]] std::vector<InputRect>
+  computeBarInputRegion(const BarInstance& instance, const ShellConfig::ShadowConfig& shadow, int surfW, int surfH, bool fullSurface) {
+    if (instance.barConfig.clickThrough) {
+      return barWidgetInputRegions(instance);
+    }
+    if (instance.barConfig.autoHide) {
+      return barAutoHideSurfaceInputRegion(instance.barConfig, surfW, surfH, fullSurface);
+    }
+    return {barContentInputRegion(instance.barConfig, shadow, surfW, surfH)};
+  }
+
   std::pair<float, float> computeAutoHideHiddenDelta(
       bool isVertical, bool isBottom, bool isRight, float w, float h, float contentLeft, float contentTop,
       float contentRight, float contentBottom
@@ -2075,14 +2114,8 @@ void Bar::syncBarAutoHideInputRegion(BarInstance& instance) const {
     instance.surface->setInputRegion({});
     return;
   }
-  if (instance.barConfig.autoHide) {
-    const bool fullSurface = instance.pointerInside || instance.attachedPopupCount > 0 || instance.hideOpacity > 0.5f;
-    instance.surface->setInputRegion(barAutoHideSurfaceInputRegion(instance.barConfig, surfW, surfH, fullSurface));
-    return;
-  }
-  instance.surface->setInputRegion(
-      {barContentInputRegion(instance.barConfig, m_config->config().shell.shadow, surfW, surfH)}
-  );
+  const bool fullSurface = instance.pointerInside || instance.attachedPopupCount > 0 || instance.hideOpacity > 0.5f;
+  instance.surface->setInputRegion(computeBarInputRegion(instance, m_config->config().shell.shadow, surfW, surfH, fullSurface));
 }
 
 void Bar::revealAutoHideBar(BarInstance& instance) {
@@ -2106,7 +2139,7 @@ void Bar::revealAutoHideBar(BarInstance& instance) {
   if (current >= kSettledThreshold) {
     const int surfW = static_cast<int>(instance.surface->width());
     const int surfH = static_cast<int>(instance.surface->height());
-    instance.surface->setInputRegion(barAutoHideSurfaceInputRegion(instance.barConfig, surfW, surfH, true));
+    instance.surface->setInputRegion(computeBarInputRegion(instance, m_config->config().shell.shadow, surfW, surfH, true));
     syncBarSurfaceChrome(instance);
     instance.surface->requestRedraw();
     notifyAttachedPanel();
@@ -2124,7 +2157,7 @@ void Bar::revealAutoHideBar(BarInstance& instance) {
   );
   const int surfW = static_cast<int>(instance.surface->width());
   const int surfH = static_cast<int>(instance.surface->height());
-  instance.surface->setInputRegion(barAutoHideSurfaceInputRegion(instance.barConfig, surfW, surfH, true));
+  instance.surface->setInputRegion(computeBarInputRegion(instance, m_config->config().shell.shadow, surfW, surfH, true));
   syncBarSurfaceChrome(instance);
   instance.surface->requestRedraw();
 }
