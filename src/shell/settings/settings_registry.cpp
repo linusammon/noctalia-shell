@@ -446,6 +446,11 @@ namespace settings {
         tr("settings.schema.appearance.app-icon-colorize.description"), {"shell", "app_icon_colorize"},
         ToggleSetting{cfg.shell.appIconColorize}, "tint all application icons"
     ));
+    entries.push_back(makeEntry(
+        SettingsSection::Appearance, "interface", tr("settings.schema.appearance.button-borders.label"),
+        tr("settings.schema.appearance.button-borders.description"), {"shell", "button_borders"},
+        ToggleSetting{cfg.shell.buttonBorders}, "button borders outline"
+    ));
     {
       const SettingVisibility colorizeOn{{"shell", "app_icon_colorize"}, {"true"}};
       ShellConfig colorizeShell = cfg.shell;

@@ -62,6 +62,9 @@ namespace Style {
   [[nodiscard]] float cornerRadiusScale() noexcept;
   void setCornerRadiusScale(float scale) noexcept;
 
+  [[nodiscard]] bool buttonBordersEnabled() noexcept;
+  void setButtonBordersEnabled(bool enabled) noexcept;
+
   [[nodiscard]] float scaledRadius(float radius, float localScale = 1.0f) noexcept;
   [[nodiscard]] float scaledRadiusSm(float localScale = 1.0f) noexcept;
   [[nodiscard]] float scaledRadiusMd(float localScale = 1.0f) noexcept;

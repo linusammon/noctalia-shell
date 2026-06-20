@@ -24,6 +24,7 @@
 #include "launcher/window_provider.h"
 #include "notification/notifications.h"
 #include "render/animation/motion_service.h"
+#include "ui/palette.h"
 #include "render/core/texture_manager.h"
 #include "render/text/font_weight_catalog.h"
 #include "scripting/plugin_manifest.h"
@@ -549,15 +550,24 @@ void Application::initServices() {
     motion.setSpeed(m_configService.config().shell.animation.speed);
     motion.setEnabled(m_configService.config().shell.animation.enabled);
   };
-  auto applyStyleConfig = [this, lastCornerRadiusScale = std::numeric_limits<float>::quiet_NaN()]() mutable {
+  auto applyStyleConfig = [this,
+                           lastCornerRadiusScale = std::numeric_limits<float>::quiet_NaN(),
+                           lastButtonBorders = true]() mutable {
     const float corner = m_configService.config().shell.cornerRadiusScale;
     const bool cornerChanged =
         std::isfinite(lastCornerRadiusScale) && std::abs(corner - lastCornerRadiusScale) > 1.0e-4f;
     Style::setCornerRadiusScale(corner);
     lastCornerRadiusScale = corner;
+    const bool borders = m_configService.config().shell.buttonBorders;
+    const bool bordersChanged = borders != lastButtonBorders;
+    Style::setButtonBordersEnabled(borders);
+    lastButtonBorders = borders;
     if (cornerChanged) {
       m_notificationToast.requestLayout();
       m_panelManager.requestLayout();
+    }
+    if (bordersChanged) {
+      paletteChanged().emit();
     }
   };
   auto applyPasswordMaskStyle = [this]() {

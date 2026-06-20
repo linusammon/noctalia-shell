@@ -431,6 +431,10 @@ void Button::applyVariant() {
     m_palette.normal.bg.alpha *= m_surfaceOpacity;
     m_palette.disabled.bg.alpha *= m_surfaceOpacity;
   }
+  if (!Style::buttonBordersEnabled()) {
+    m_palette.borderWidth = 0.0f;
+    m_palette.normal.border = clearColorSpec();
+  }
   setBorder(m_palette.normal.border, m_palette.borderWidth);
 
   // Only seed targets before the first visual state application. Once the

@@ -1282,6 +1282,7 @@ namespace noctalia::config::schema {
         field(&ShellConfig::screenTimeEnabled, "screen_time_enabled"),
         field(&ShellConfig::sharedGlContext, "shared_gl_context"),
         field(&ShellConfig::disableMipmaps, "disable_mipmaps"),
+        field(&ShellConfig::buttonBorders, "button_borders"),
         enumField(&ShellConfig::clipboardAutoPaste, "clipboard_auto_paste", kClipboardAutoPasteModes),
         field(&ShellConfig::clipboardImageActionCommand, "clipboard_image_action_command"),
         pathStringField(&ShellConfig::avatarPath, "avatar_path"),

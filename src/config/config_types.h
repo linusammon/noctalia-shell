@@ -872,6 +872,7 @@ struct ShellConfig {
   bool screenTimeEnabled = false;
   bool sharedGlContext = true;
   bool disableMipmaps = false;
+  bool buttonBorders = true; // show borders/outlines on button controls
   ClipboardAutoPasteMode clipboardAutoPaste = ClipboardAutoPasteMode::Auto;
   std::string clipboardImageActionCommand;
   ShadowConfig shadow;
